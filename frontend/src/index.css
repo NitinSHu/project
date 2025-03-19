@@ -11,4 +11,67 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* Status badges */
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-lead {
+  background-color: #cff4fc;
+  color: #055160;
+}
+
+.status-prospect {
+  background-color: #fff3cd;
+  color: #664d03;
+}
+
+.status-customer {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.status-inactive {
+  background-color: #f8d7da;
+  color: #842029;
+}
+
+.status-potential {
+  background-color: #e2e3e5;
+  color: #41464b;
+}
+
+/* Table styles */
+.table {
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Card styles */
+.card {
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Button styles */
+.btn {
+  font-weight: 500;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+}
+
+/* Link styles */
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 } 

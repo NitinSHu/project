@@ -1,21 +1,29 @@
 import React from 'react';
+import { Navbar as BsNavbar, Nav, Container } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
-import { Navbar as BootstrapNavbar, Nav, Container } from 'react-bootstrap';
 
 const Navbar = () => {
   const location = useLocation();
-  
+
   return (
-    <BootstrapNavbar bg="dark" variant="dark" expand="lg">
+    <BsNavbar bg="dark" variant="dark" expand="lg" className="mb-3">
       <Container>
-        <BootstrapNavbar.Brand as={Link} to="/">CRM System</BootstrapNavbar.Brand>
-        <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
-        <BootstrapNavbar.Collapse id="basic-navbar-nav">
+        <BsNavbar.Brand as={Link} to="/">CRM System</BsNavbar.Brand>
+        <BsNavbar.Toggle aria-controls="basic-navbar-nav" />
+        <BsNavbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link as={Link} to="/" active={location.pathname === '/'}>
+            <Nav.Link 
+              as={Link} 
+              to="/" 
+              active={location.pathname === '/'}
+            >
               Dashboard
             </Nav.Link>
-            <Nav.Link as={Link} to="/customers" active={location.pathname.includes('/customers')}>
+            <Nav.Link 
+              as={Link} 
+              to="/customers" 
+              active={location.pathname.startsWith('/customers')}
+            >
               Customers
             </Nav.Link>
           </Nav>
@@ -24,9 +32,9 @@ const Navbar = () => {
               Add Customer
             </Nav.Link>
           </Nav>
-        </BootstrapNavbar.Collapse>
+        </BsNavbar.Collapse>
       </Container>
-    </BootstrapNavbar>
+    </BsNavbar>
   );
 };
 
