@@ -1,120 +1,139 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card } from 'react-bootstrap';
-import { getCustomers } from '../services/customerService';
+import { Card, Row, Col, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import '../styles/Dashboard.css';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
     totalCustomers: 0,
     leads: 0,
     prospects: 0,
-    customers: 0,
-    recentCustomers: []
+    activeCustomers: 0,
+    recentInteractions: []
   });
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await getCustomers();
-        if (response.success) {
-          const customers = response.data;
-          
-          // Calculate stats
-          const leads = customers.filter(c => c.status === 'lead').length;
-          const prospects = customers.filter(c => c.status === 'prospect').length;
-          const activeCustomers = customers.filter(c => c.status === 'customer').length;
-          
-          // Get 5 most recent customers
-          const recentCustomers = [...customers]
-            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-            .slice(0, 5);
-          
-          setStats({
-            totalCustomers: customers.length,
-            leads,
-            prospects,
-            customers: activeCustomers,
-            recentCustomers
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      }
-    };
-    
-    fetchData();
+    fetchDashboardData();
+    // Poll for updates every 30 seconds
+    const interval = setInterval(fetchDashboardData, 30000);
+    return () => clearInterval(interval);
   }, []);
 
+  const fetchDashboardData = async () => {
+    try {
+      const response = await axios.get('/api/customers');
+      if (response.data.success) {
+        const customers = response.data.data;
+        
+        // Calculate statistics
+        const stats = {
+          totalCustomers: customers.length,
+          leads: customers.filter(c => c.status === 'lead').length,
+          prospects: customers.filter(c => c.status === 'prospect').length,
+          activeCustomers: customers.filter(c => c.status === 'customer').length,
+          recentCustomers: customers.slice(-5).reverse()
+        };
+        
+        setStats(stats);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="loading-spinner">Loading...</div>;
+  }
+
   return (
-    <div>
-      <h1 className="mb-4">Dashboard</h1>
+    <div className="dashboard-container">
+      <h2 className="mb-4 fade-in">Dashboard</h2>
       
-      <Row className="mb-4">
-        <Col md={3}>
-          <Card className="dashboard-card text-center mb-3">
+      <Row className="stats-container">
+        <Col md={3} className="mb-4">
+          <Card className="dashboard-card slide-up">
             <Card.Body>
-              <h3>{stats.totalCustomers}</h3>
-              <Card.Text>Total Contacts</Card.Text>
+              <Card.Title>Total Customers</Card.Title>
+              <h2 className="counter">{stats.totalCustomers}</h2>
             </Card.Body>
           </Card>
         </Col>
-        <Col md={3}>
-          <Card className="dashboard-card text-center mb-3 bg-warning text-dark">
+        
+        <Col md={3} className="mb-4">
+          <Card className="dashboard-card slide-up" style={{animationDelay: '0.2s'}}>
             <Card.Body>
-              <h3>{stats.leads}</h3>
-              <Card.Text>Leads</Card.Text>
+              <Card.Title>Active Leads</Card.Title>
+              <h2 className="counter">{stats.leads}</h2>
             </Card.Body>
           </Card>
         </Col>
-        <Col md={3}>
-          <Card className="dashboard-card text-center mb-3 bg-info text-white">
+        
+        <Col md={3} className="mb-4">
+          <Card className="dashboard-card slide-up" style={{animationDelay: '0.4s'}}>
             <Card.Body>
-              <h3>{stats.prospects}</h3>
-              <Card.Text>Prospects</Card.Text>
+              <Card.Title>Prospects</Card.Title>
+              <h2 className="counter">{stats.prospects}</h2>
             </Card.Body>
           </Card>
         </Col>
-        <Col md={3}>
-          <Card className="dashboard-card text-center mb-3 bg-success text-white">
+        
+        <Col md={3} className="mb-4">
+          <Card className="dashboard-card slide-up" style={{animationDelay: '0.6s'}}>
             <Card.Body>
-              <h3>{stats.customers}</h3>
-              <Card.Text>Customers</Card.Text>
+              <Card.Title>Active Customers</Card.Title>
+              <h2 className="counter">{stats.activeCustomers}</h2>
             </Card.Body>
           </Card>
         </Col>
       </Row>
-      
-      <h2 className="mb-3">Recent Customers</h2>
-      <Row>
-        {stats.recentCustomers.length > 0 ? (
-          stats.recentCustomers.map(customer => (
-            <Col md={4} key={customer.id} className="mb-3">
-              <Card className="customer-card h-100">
-                <Card.Body>
-                  <Card.Title>
-                    {customer.first_name} {customer.last_name}
-                  </Card.Title>
-                  <Card.Subtitle className="mb-2 text-muted">{customer.company}</Card.Subtitle>
-                  <Card.Text>
-                    <span className={`status-badge status-${customer.status}`}>
-                      {customer.status.charAt(0).toUpperCase() + customer.status.slice(1)}
-                    </span>
-                  </Card.Text>
-                  <Link to={`/customers/${customer.id}`} className="btn btn-sm btn-primary">
-                    View Details
-                  </Link>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))
-        ) : (
-          <Col>
-            <p>No customers found. <Link to="/customers/new">Add your first customer</Link></p>
-          </Col>
-        )}
-      </Row>
+
+      <Card className="mt-4 fade-in">
+        <Card.Body>
+          <Card.Title>Recent Customers</Card.Title>
+          <div className="recent-customers">
+            {stats.recentCustomers?.map((customer, index) => (
+              <Link 
+                to={`/customers/${customer.id}`} 
+                key={customer.id}
+                className="recent-customer-item"
+                style={{animationDelay: `${index * 0.1}s`}}
+              >
+                <div className="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6>{customer.first_name} {customer.last_name}</h6>
+                    <small>{customer.company}</small>
+                  </div>
+                  <Badge bg={getBadgeColor(customer.status)}>
+                    {customer.status}
+                  </Badge>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </Card.Body>
+      </Card>
     </div>
   );
+};
+
+const getBadgeColor = (status) => {
+  switch (status) {
+    case 'lead':
+      return 'warning';
+    case 'prospect':
+      return 'info';
+    case 'customer':
+      return 'success';
+    case 'inactive':
+      return 'secondary';
+    default:
+      return 'primary';
+  }
 };
 
 export default Dashboard; 

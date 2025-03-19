@@ -1,0 +1,115 @@
+/* Animations */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes countUp {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Dashboard Container */
+.dashboard-container {
+  padding: 20px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Stats Cards */
+.dashboard-card {
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.slide-up {
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+.counter {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #2c3e50;
+  animation: countUp 0.5s ease-out;
+}
+
+/* Recent Customers Section */
+.recent-customers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.recent-customer-item {
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+.recent-customer-item:hover {
+  background-color: #e9ecef;
+  transform: translateX(5px);
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.2rem;
+  color: #6c757d;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Fade In Animation */
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .stats-container {
+    margin-bottom: 1rem;
+  }
+  
+  .dashboard-card {
+    margin-bottom: 1rem;
+  }
+  
+  .counter {
+    font-size: 2rem;
+  }
+} 

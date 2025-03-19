@@ -7,7 +7,7 @@ class Customer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
     phone = db.Column(db.String(20))
     company = db.Column(db.String(100))
     status = db.Column(db.String(20), default='lead')  # lead, prospect, customer, etc.
@@ -16,6 +16,7 @@ class Customer(db.Model):
     
     # Relationships
     interactions = db.relationship('Interaction', backref='customer', lazy=True, cascade='all, delete-orphan')
+    reviews = db.relationship('Review', backref='customer', lazy=True, cascade='all, delete-orphan')
     
     def to_dict(self):
         return {
@@ -27,8 +28,16 @@ class Customer(db.Model):
             'company': self.company,
             'status': self.status,
             'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'interactions': [interaction.to_dict() for interaction in self.interactions],
+            'reviews': [review.to_dict() for review in self.reviews],
+            'average_rating': self.get_average_rating()
         }
+    
+    def get_average_rating(self):
+        if not self.reviews:
+            return None
+        return round(sum(review.rating for review in self.reviews) / len(self.reviews), 1)
     
     def __repr__(self):
         return f'<Customer {self.first_name} {self.last_name}>'
