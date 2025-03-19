@@ -10,8 +10,14 @@
     "monitoring"
   ],
   "scripts": {
+    "start:frontend": "cd frontend && npm start",
+    "start:backend": "run-backend.bat",
+    "dev": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
 } 

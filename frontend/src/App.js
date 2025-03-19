@@ -2,29 +2,74 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 
+// Auth Provider
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+
 // Components
 import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
 import CustomerList from './pages/CustomerList';
 import CustomerDetail from './pages/CustomerDetail';
 import CustomerForm from './pages/CustomerForm';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import UserManagement from './pages/UserManagement';
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Navbar />
-        <div className="container mt-4">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/customers" element={<CustomerList />} />
-            <Route path="/customers/:id" element={<CustomerDetail />} />
-            <Route path="/customers/new" element={<CustomerForm />} />
-            <Route path="/customers/edit/:id" element={<CustomerForm />} />
-          </Routes>
+    <AuthProvider>
+      <Router>
+        <div className="App">
+          <Navbar />
+          <div className="container mt-4">
+            <Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              
+              {/* Protected routes */}
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/customers" element={
+                <ProtectedRoute>
+                  <CustomerList />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/customers/:id" element={
+                <ProtectedRoute>
+                  <CustomerDetail />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/customers/new" element={
+                <ProtectedRoute>
+                  <CustomerForm />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/customers/edit/:id" element={
+                <ProtectedRoute>
+                  <CustomerForm />
+                </ProtectedRoute>
+              } />
+              
+              {/* Admin routes */}
+              <Route path="/admin/users" element={
+                <ProtectedRoute requireAdmin={true}>
+                  <UserManagement />
+                </ProtectedRoute>
+              } />
+            </Routes>
+          </div>
         </div>
-      </div>
-    </Router>
+      </Router>
+    </AuthProvider>
   );
 }
 
