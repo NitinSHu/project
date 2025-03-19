@@ -23,8 +23,8 @@ wheels/
 # Virtual Environment
 venv/
 ENV/
-# env/ dont change this
-.env
+env/ dont change this
+# .env
 
 # IDE
 .idea/
