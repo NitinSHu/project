@@ -1,33 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Container, Row, Col, Form, Button, InputGroup, Badge, Spinner, Alert, Table } from 'react-bootstrap';
+import { Card, Container, Row, Col, Form, Button, InputGroup, Badge, Spinner, Alert, Table, Pagination } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { FaSearch, FaFilter, FaSort, FaEdit, FaTrash, FaStar, FaEye } from 'react-icons/fa';
-import { getCustomers, deleteCustomer } from '../services/customerService';
+import { getCustomers, deleteCustomer, searchCustomers } from '../services/customerService';
 import StarRatings from 'react-star-ratings';
 
 const CustomerList = () => {
   const [customers, setCustomers] = useState([]);
-  const [filteredCustomers, setFilteredCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortField, setSortField] = useState('created_at');
   const [sortDirection, setSortDirection] = useState('desc');
+  
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     fetchCustomers();
-  }, []);
-
-  useEffect(() => {
-    filterCustomers();
-  }, [customers, searchTerm, statusFilter, sortField, sortDirection]);
+  }, [page, perPage, sortField, sortDirection, statusFilter]);
 
   const fetchCustomers = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await getCustomers();
+      
+      const params = {
+        page,
+        perPage,
+        sortBy: sortField,
+        sortOrder: sortDirection,
+        status: statusFilter !== 'all' ? statusFilter : null
+      };
+      
+      const response = await getCustomers(params);
       
       if (response.success) {
         // Add a default rating property to customers if not present
@@ -36,6 +46,8 @@ const CustomerList = () => {
           rating: customer.rating || 0
         }));
         setCustomers(customersWithRating);
+        setTotalItems(response.count || 0);
+        setTotalPages(response.pages || 1);
       } else {
         setError('Failed to load customers');
       }
@@ -47,45 +59,48 @@ const CustomerList = () => {
     }
   };
 
-  const filterCustomers = () => {
-    let filtered = [...customers];
-    
-    // Apply search filter
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(customer => 
-        customer.first_name.toLowerCase().includes(searchLower) ||
-        customer.last_name.toLowerCase().includes(searchLower) ||
-        customer.email.toLowerCase().includes(searchLower) ||
-        (customer.company && customer.company.toLowerCase().includes(searchLower))
-      );
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setPage(1); // Reset to first page on new search
+    if (searchTerm.trim()) {
+      performSearch();
+    } else {
+      fetchCustomers();
     }
-    
-    // Apply status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(customer => customer.status === statusFilter);
+  };
+
+  const performSearch = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const params = {
+        search: searchTerm,
+        status: statusFilter !== 'all' ? statusFilter : null,
+        sortBy: sortField,
+        sortOrder: sortDirection
+      };
+      
+      const response = await searchCustomers(params);
+      
+      if (response.success) {
+        // Add a default rating property to customers if not present
+        const customersWithRating = response.data.map(customer => ({
+          ...customer,
+          rating: customer.rating || 0
+        }));
+        setCustomers(customersWithRating);
+        setTotalItems(response.count || customersWithRating.length);
+        setTotalPages(1); // Search results come on a single page currently
+      } else {
+        setError('Failed to search customers');
+      }
+    } catch (error) {
+      console.error('Error searching customers:', error);
+      setError('An error occurred while searching customers');
+    } finally {
+      setLoading(false);
     }
-    
-    // Apply sorting
-    filtered.sort((a, b) => {
-      let fieldA = a[sortField];
-      let fieldB = b[sortField];
-      
-      if (sortField === 'name') {
-        fieldA = `${a.first_name} ${a.last_name}`;
-        fieldB = `${b.first_name} ${b.last_name}`;
-      }
-      
-      if (fieldA < fieldB) {
-        return sortDirection === 'asc' ? -1 : 1;
-      }
-      if (fieldA > fieldB) {
-        return sortDirection === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-    
-    setFilteredCustomers(filtered);
   };
 
   const handleDelete = async (id, e) => {
@@ -96,7 +111,8 @@ const CustomerList = () => {
       try {
         const response = await deleteCustomer(id);
         if (response.success) {
-          setCustomers(customers.filter(customer => customer.id !== id));
+          // Refetch customers to update the list correctly
+          fetchCustomers();
         }
       } catch (error) {
         console.error('Error deleting customer:', error);
@@ -112,6 +128,16 @@ const CustomerList = () => {
       setSortField(field);
       setSortDirection('asc');
     }
+    setPage(1); // Reset to first page when changing sort
+  };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  const handlePerPageChange = (e) => {
+    setPerPage(parseInt(e.target.value, 10));
+    setPage(1); // Reset to first page when changing items per page
   };
 
   const getStatusBadgeVariant = (status) => {
@@ -129,7 +155,95 @@ const CustomerList = () => {
     return sortDirection === 'asc' ? ' ↑' : ' ↓';
   };
 
-  if (loading) {
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+    
+    let items = [];
+    
+    // Previous button
+    items.push(
+      <Pagination.Prev 
+        key="prev" 
+        onClick={() => handlePageChange(Math.max(1, page - 1))}
+        disabled={page === 1}
+      />
+    );
+    
+    // First page
+    if (page > 2) {
+      items.push(
+        <Pagination.Item key={1} onClick={() => handlePageChange(1)}>
+          1
+        </Pagination.Item>
+      );
+    }
+    
+    // Ellipsis if needed
+    if (page > 3) {
+      items.push(<Pagination.Ellipsis key="ellipsis1" disabled />);
+    }
+    
+    // Pages around current
+    for (let number = Math.max(1, page - 1); number <= Math.min(totalPages, page + 1); number++) {
+      items.push(
+        <Pagination.Item 
+          key={number} 
+          active={number === page}
+          onClick={() => handlePageChange(number)}
+        >
+          {number}
+        </Pagination.Item>
+      );
+    }
+    
+    // Ellipsis if needed
+    if (page < totalPages - 2) {
+      items.push(<Pagination.Ellipsis key="ellipsis2" disabled />);
+    }
+    
+    // Last page
+    if (page < totalPages - 1) {
+      items.push(
+        <Pagination.Item key={totalPages} onClick={() => handlePageChange(totalPages)}>
+          {totalPages}
+        </Pagination.Item>
+      );
+    }
+    
+    // Next button
+    items.push(
+      <Pagination.Next 
+        key="next" 
+        onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
+        disabled={page === totalPages}
+      />
+    );
+    
+    return (
+      <div className="d-flex justify-content-between align-items-center mt-3">
+        <div>
+          <Form.Select 
+            size="sm" 
+            style={{ width: '100px' }}
+            value={perPage}
+            onChange={handlePerPageChange}
+            aria-label="Items per page"
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </Form.Select>
+        </div>
+        <Pagination>{items}</Pagination>
+        <div className="text-muted">
+          Showing {customers.length} of {totalItems} customers
+        </div>
+      </div>
+    );
+  };
+
+  if (loading && page === 1) {
     return (
       <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '50vh' }}>
         <Spinner animation="border" role="status">
@@ -154,16 +268,19 @@ const CustomerList = () => {
         <Card.Body className="p-4">
           <Row className="g-3">
             <Col md={6}>
-              <InputGroup>
-                <InputGroup.Text>
-                  <FaSearch />
-                </InputGroup.Text>
-                <Form.Control
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search customers by name, email, or company..."
-                />
-              </InputGroup>
+              <Form onSubmit={handleSearch}>
+                <InputGroup>
+                  <InputGroup.Text>
+                    <FaSearch />
+                  </InputGroup.Text>
+                  <Form.Control
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search customers by name, email, or company..."
+                  />
+                  <Button type="submit" variant="outline-primary">Search</Button>
+                </InputGroup>
+              </Form>
             </Col>
             <Col md={3}>
               <InputGroup>
@@ -172,7 +289,10 @@ const CustomerList = () => {
                 </InputGroup.Text>
                 <Form.Select
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                    setPage(1); // Reset to first page when changing filter
+                  }}
                 >
                   <option value="all">All Statuses</option>
                   <option value="lead">Leads</option>
@@ -208,11 +328,14 @@ const CustomerList = () => {
         </Card.Body>
       </Card>
       
-      <div className="mb-3 text-muted">
-        Showing {filteredCustomers.length} of {customers.length} customers
-      </div>
+      {loading && (
+        <div className="text-center my-4">
+          <Spinner animation="border" size="sm" className="me-2" />
+          <span>Loading...</span>
+        </div>
+      )}
       
-      {filteredCustomers.length === 0 ? (
+      {!loading && customers.length === 0 ? (
         <Card className="shadow-sm border-0 text-center p-5">
           <Card.Body>
             <h4>No customers found</h4>
@@ -247,7 +370,7 @@ const CustomerList = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredCustomers.map(customer => (
+                {customers.map(customer => (
                   <tr key={customer.id}>
                     <td className="px-3 py-3">
                       <div className="fw-medium">
@@ -309,6 +432,7 @@ const CustomerList = () => {
               </tbody>
             </Table>
           </div>
+          {renderPagination()}
         </Card>
       )}
     </Container>

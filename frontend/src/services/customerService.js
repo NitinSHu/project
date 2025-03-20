@@ -3,12 +3,50 @@ import axios from 'axios';
 const API_URL = '/api/customers';
 
 // Get all customers
-export const getCustomers = async () => {
+export const getCustomers = async (params = {}) => {
   try {
-    const response = await axios.get(API_URL);
+    const { page, perPage, sortBy, sortOrder, status, search } = params;
+    
+    // Build query parameters
+    const queryParams = new URLSearchParams();
+    
+    if (page) queryParams.append('page', page);
+    if (perPage) queryParams.append('per_page', perPage);
+    if (sortBy) queryParams.append('sort_by', sortBy === 'name' ? 'first_name' : sortBy);
+    if (sortOrder) queryParams.append('sort_order', sortOrder);
+    if (status && status !== 'all') queryParams.append('status', status);
+    
+    const queryString = queryParams.toString();
+    const url = queryString ? `${API_URL}?${queryString}` : API_URL;
+    
+    const response = await axios.get(url);
     return response.data;
   } catch (error) {
     console.error('Error fetching customers:', error);
+    throw error;
+  }
+};
+
+// Search customers with advanced filtering
+export const searchCustomers = async (params = {}) => {
+  try {
+    const { search, status, sortBy, sortOrder } = params;
+    
+    // Build query parameters
+    const queryParams = new URLSearchParams();
+    
+    if (search) queryParams.append('q', search);
+    if (status && status !== 'all') queryParams.append('status', status);
+    if (sortBy) queryParams.append('sort_by', sortBy === 'name' ? 'first_name' : sortBy);
+    if (sortOrder) queryParams.append('sort_order', sortOrder);
+    
+    const queryString = queryParams.toString();
+    const url = `${API_URL}/search${queryString ? `?${queryString}` : ''}`;
+    
+    const response = await axios.get(url);
+    return response.data;
+  } catch (error) {
+    console.error('Error searching customers:', error);
     throw error;
   }
 };
