@@ -15,7 +15,7 @@ const Navbar = () => {
   };
 
   return (
-    <BsNavbar bg="dark" variant="dark" expand="lg" className="sticky-top shadow-sm">
+    <BsNavbar bg="dark" variant="dark" expand="lg" className="shadow-sm mb-0">
       <Container fluid="lg">
         <BsNavbar.Brand as={Link} to="/" className="fw-bold">
           <span className="d-flex align-items-center">
@@ -63,7 +63,7 @@ const Navbar = () => {
               </>
             )}
           </Nav>
-          <Nav>
+          <Nav className="align-items-center">
             {user ? (
               <>
                 {isAdmin() && (
@@ -74,7 +74,8 @@ const Navbar = () => {
                     className="d-flex align-items-center gap-1"
                   >
                     <FaUserCog size={14} />
-                    <span>Manage Users</span>
+                    <span className="d-none d-md-inline">Manage Users</span>
+                    <span className="d-inline d-md-none">Admin</span>
                   </Nav.Link>
                 )}
                 <Button 
@@ -82,16 +83,16 @@ const Navbar = () => {
                   to="/customers/new" 
                   variant="primary" 
                   size="sm" 
-                  className="d-flex align-items-center gap-1 mx-3"
+                  className="d-flex align-items-center gap-1 mx-2"
                 >
                   <FaPlus />
-                  <span className="d-none d-sm-inline">Add Customer</span>
+                  <span className="d-none d-md-inline">Add Customer</span>
                 </Button>
                 <NavDropdown 
                   title={
                     <span className="d-flex align-items-center gap-1">
                       <FaUser size={14} />
-                      <span>{user.username || 'Account'}</span>
+                      <span className="d-none d-sm-inline">{user.username || 'Account'}</span>
                     </span>
                   } 
                   id="user-dropdown" 
