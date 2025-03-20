@@ -25,6 +25,22 @@ body {
   font-weight: bold;
 }
 
+/* Table styling */
+.table th {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  transition: background-color 0.2s ease;
+}
+
+.table th:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
 /* Card styling */
 .card {
   transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Card, Form, InputGroup, Container, Row, Col, Badge, Spinner, Alert } from 'react-bootstrap';
+import { Card, Container, Row, Col, Form, Button, InputGroup, Badge, Spinner, Alert, Table } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { FaSearch, FaFilter, FaSort, FaEdit, FaTrash, FaStar, FaEye } from 'react-icons/fa';
 import { getCustomers, deleteCustomer } from '../services/customerService';
-import { FaSearch, FaPlus, FaTrash, FaEdit, FaEye, FaTimes, FaFilter, FaSort, FaStar } from 'react-icons/fa';
 import StarRatings from 'react-star-ratings';
 
 const CustomerList = () => {
@@ -124,6 +124,11 @@ const CustomerList = () => {
     }
   };
 
+  const renderSortIcon = (field) => {
+    if (sortField !== field) return null;
+    return sortDirection === 'asc' ? ' ↑' : ' ↓';
+  };
+
   if (loading) {
     return (
       <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '50vh' }}>
@@ -218,72 +223,93 @@ const CustomerList = () => {
           </Card.Body>
         </Card>
       ) : (
-        <Row className="g-4">
-          {filteredCustomers.map(customer => (
-            <Col lg={4} md={6} key={customer.id}>
-              <Link to={`/customers/${customer.id}`} className="text-decoration-none">
-                <Card className="h-100 shadow-sm border-0 hover-card">
-                  <Card.Body>
-                    <div className="d-flex justify-content-between align-items-start mb-2">
-                      <div>
-                        <h5 className="mb-1 text-dark">
-                          {customer.first_name} {customer.last_name}
-                        </h5>
-                        <div className="text-muted small">
-                          {customer.company || 'No company'}
-                        </div>
+        <Card className="shadow-sm border-0">
+          <div className="table-responsive">
+            <Table hover className="mb-0">
+              <thead className="bg-light">
+                <tr>
+                  <th className="px-3 py-3 cursor-pointer" onClick={() => toggleSortDirection('name')}>
+                    Name {renderSortIcon('name')}
+                  </th>
+                  <th className="px-3 py-3 cursor-pointer" onClick={() => toggleSortDirection('email')}>
+                    Email {renderSortIcon('email')}
+                  </th>
+                  <th className="px-3 py-3 d-none d-md-table-cell cursor-pointer" onClick={() => toggleSortDirection('company')}>
+                    Company {renderSortIcon('company')}
+                  </th>
+                  <th className="px-3 py-3 cursor-pointer" onClick={() => toggleSortDirection('status')}>
+                    Status {renderSortIcon('status')}
+                  </th>
+                  <th className="px-3 py-3 cursor-pointer" onClick={() => toggleSortDirection('rating')}>
+                    Rating {renderSortIcon('rating')}
+                  </th>
+                  <th className="px-3 py-3 text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredCustomers.map(customer => (
+                  <tr key={customer.id}>
+                    <td className="px-3 py-3">
+                      <div className="fw-medium">
+                        {customer.first_name} {customer.last_name}
                       </div>
+                    </td>
+                    <td className="px-3 py-3">{customer.email}</td>
+                    <td className="px-3 py-3 d-none d-md-table-cell">
+                      {customer.company || <span className="text-muted">None</span>}
+                    </td>
+                    <td className="px-3 py-3">
                       <Badge bg={getStatusBadgeVariant(customer.status)} className="py-2 px-3">
                         {customer.status.charAt(0).toUpperCase() + customer.status.slice(1)}
                       </Badge>
-                    </div>
-                    
-                    <div className="d-flex align-items-center mb-3">
-                      <FaStar className="text-warning me-2" />
-                      <StarRatings
-                        rating={customer.rating || 0}
-                        starRatedColor="#ffc107"
-                        starDimension="16px"
-                        starSpacing="1px"
-                        numberOfStars={5}
-                        name={`rating-${customer.id}`}
-                      />
-                      <span className="ms-2 small">
-                        {customer.rating ? customer.rating.toFixed(1) : 'Not rated'}
-                      </span>
-                    </div>
-                    
-                    <div className="customer-info mb-3">
-                      <div className="text-truncate">
-                        <span className="text-muted">Email:</span> {customer.email}
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="d-flex align-items-center">
+                        <StarRatings
+                          rating={customer.rating || 0}
+                          starRatedColor="#ffc107"
+                          starDimension="16px"
+                          starSpacing="1px"
+                          numberOfStars={5}
+                          name={`rating-${customer.id}`}
+                        />
+                        <span className="ms-2 small">
+                          {customer.rating ? customer.rating.toFixed(1) : '-'}
+                        </span>
                       </div>
-                      <div className="text-truncate">
-                        <span className="text-muted">Phone:</span> {customer.phone || 'Not provided'}
+                    </td>
+                    <td className="px-3 py-3 text-end">
+                      <div className="d-flex justify-content-end gap-2">
+                        <Link
+                          to={`/customers/${customer.id}`}
+                          className="btn btn-sm btn-outline-secondary"
+                          title="View Details"
+                        >
+                          <FaEye />
+                        </Link>
+                        <Link
+                          to={`/customers/edit/${customer.id}`}
+                          className="btn btn-sm btn-outline-primary"
+                          title="Edit Customer"
+                        >
+                          <FaEdit />
+                        </Link>
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={(e) => handleDelete(customer.id, e)}
+                          title="Delete Customer"
+                        >
+                          <FaTrash />
+                        </Button>
                       </div>
-                    </div>
-                    
-                    <div className="d-flex justify-content-end gap-2 mt-auto">
-                      <Link 
-                        to={`/customers/edit/${customer.id}`} 
-                        className="btn btn-sm btn-outline-primary" 
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <FaEdit />
-                      </Link>
-                      <Button 
-                        variant="outline-danger" 
-                        size="sm"
-                        onClick={(e) => handleDelete(customer.id, e)}
-                      >
-                        <FaTrash />
-                      </Button>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Link>
-            </Col>
-          ))}
-        </Row>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        </Card>
       )}
     </Container>
   );
