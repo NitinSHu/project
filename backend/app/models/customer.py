@@ -19,6 +19,10 @@ class Customer(db.Model):
     reviews = db.relationship('Review', backref='customer', lazy=True, cascade='all, delete-orphan')
     
     def to_dict(self):
+        # Get the latest rating if any
+        latest_rating = self.get_latest_rating()
+        avg_rating = self.get_average_rating()
+        
         return {
             'id': self.id,
             'first_name': self.first_name,
@@ -30,14 +34,21 @@ class Customer(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
             'interactions': [interaction.to_dict() for interaction in self.interactions],
-            'reviews': [review.to_dict() for review in self.reviews],
-            'average_rating': self.get_average_rating()
+            'rating': latest_rating,
+            'average_rating': avg_rating
         }
     
     def get_average_rating(self):
         if not self.reviews:
-            return None
+            return 0
         return round(sum(review.rating for review in self.reviews) / len(self.reviews), 1)
+    
+    def get_latest_rating(self):
+        if not self.reviews:
+            return 0
+        # Get the most recent review
+        latest_review = sorted(self.reviews, key=lambda x: x.created_at, reverse=True)[0]
+        return latest_review.rating
     
     def __repr__(self):
         return f'<Customer {self.first_name} {self.last_name}>'

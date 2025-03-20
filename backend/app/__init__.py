@@ -46,4 +46,8 @@ def create_app(config_class=Config):
     with app.app_context():
         db.create_all()
     
+    @app.route('/')
+    def index():
+        return {'status': 'API is running'}
+    
     return app 

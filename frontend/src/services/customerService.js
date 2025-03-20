@@ -85,6 +85,18 @@ export const getCustomerRating = async (customerId) => {
     const response = await axios.get(`${API_URL}/${customerId}/rating`);
     return response.data;
   } catch (error) {
+    // Handle 404 as valid response with rating = 0
+    if (error.response && error.response.status === 404) {
+      return {
+        success: true,
+        data: {
+          rating: 0,
+          review_id: null,
+          review_text: '',
+          average_rating: 0
+        }
+      };
+    }
     console.error(`Error fetching rating for customer ${customerId}:`, error);
     throw error;
   }
@@ -93,7 +105,14 @@ export const getCustomerRating = async (customerId) => {
 // Update customer rating
 export const updateCustomerRating = async (customerId, ratingData) => {
   try {
-    const response = await axios.put(`${API_URL}/${customerId}/rating`, ratingData);
+    // Ensure rating is a number between 0 and 5
+    const rating = Math.min(5, Math.max(0, Number(ratingData.rating) || 0));
+    
+    const response = await axios.put(`${API_URL}/${customerId}/rating`, { 
+      rating,
+      review: ratingData.review || ''
+    });
+    
     return response.data;
   } catch (error) {
     console.error(`Error updating rating for customer ${customerId}:`, error);
