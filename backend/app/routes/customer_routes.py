@@ -3,16 +3,114 @@ from app import db
 from app.models.customer import Customer, Interaction
 from app.models.review import Review
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import or_
 
 customer_bp = Blueprint('customers', __name__)
+
+# Get all customers with proper name formatting and filtering
+@customer_bp.route('/search', methods=['GET'])
+def search_customers():
+    # Get query parameters
+    search_term = request.args.get('q', '')
+    status = request.args.get('status', None)
+    sort_by = request.args.get('sort_by', 'last_name')
+    sort_order = request.args.get('sort_order', 'asc')
+    
+    # Start with base query
+    query = Customer.query
+    
+    # Apply filters
+    if search_term:
+        search_term = f"%{search_term}%"
+        query = query.filter(or_(
+            Customer.first_name.ilike(search_term),
+            Customer.last_name.ilike(search_term),
+            Customer.email.ilike(search_term),
+            Customer.company.ilike(search_term)
+        ))
+    
+    if status:
+        query = query.filter(Customer.status == status)
+    
+    # Apply sorting
+    if sort_by == 'name':
+        if sort_order == 'asc':
+            query = query.order_by(Customer.first_name.asc(), Customer.last_name.asc())
+        else:
+            query = query.order_by(Customer.first_name.desc(), Customer.last_name.desc())
+    elif sort_by == 'last_name':
+        if sort_order == 'asc':
+            query = query.order_by(Customer.last_name.asc(), Customer.first_name.asc())
+        else:
+            query = query.order_by(Customer.last_name.desc(), Customer.first_name.desc())
+    elif sort_by == 'company':
+        if sort_order == 'asc':
+            query = query.order_by(Customer.company.asc())
+        else:
+            query = query.order_by(Customer.company.desc())
+    elif sort_by == 'created_at':
+        if sort_order == 'asc':
+            query = query.order_by(Customer.created_at.asc())
+        else:
+            query = query.order_by(Customer.created_at.desc())
+    
+    # Execute query
+    customers = query.all()
+    
+    return jsonify({
+        'success': True,
+        'count': len(customers),
+        'data': [customer.to_dict() for customer in customers]
+    }), 200
 
 # Get all customers
 @customer_bp.route('', methods=['GET'])
 def get_customers():
-    customers = Customer.query.all()
+    # Get pagination parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
+    sort_by = request.args.get('sort_by', 'last_name')
+    sort_order = request.args.get('sort_order', 'asc')
+    
+    # Limit per_page to reasonable values
+    if per_page > 100:
+        per_page = 100
+    
+    # Start with base query
+    query = Customer.query
+    
+    # Apply sorting
+    if sort_by == 'name':
+        if sort_order == 'asc':
+            query = query.order_by(Customer.first_name.asc(), Customer.last_name.asc())
+        else:
+            query = query.order_by(Customer.first_name.desc(), Customer.last_name.desc())
+    elif sort_by == 'last_name':
+        if sort_order == 'asc':
+            query = query.order_by(Customer.last_name.asc(), Customer.first_name.asc())
+        else:
+            query = query.order_by(Customer.last_name.desc(), Customer.first_name.desc())
+    elif sort_by == 'company':
+        if sort_order == 'asc':
+            query = query.order_by(Customer.company.asc())
+        else:
+            query = query.order_by(Customer.company.desc())
+    elif sort_by == 'created_at':
+        if sort_order == 'asc':
+            query = query.order_by(Customer.created_at.asc())
+        else:
+            query = query.order_by(Customer.created_at.desc())
+    
+    # Execute query with pagination
+    paginated_customers = query.paginate(page=page, per_page=per_page, error_out=False)
+    
     return jsonify({
         'success': True,
-        'data': [customer.to_dict() for customer in customers]
+        'count': paginated_customers.total,
+        'page': page,
+        'per_page': per_page,
+        'pages': paginated_customers.pages,
+        'data': [customer.to_dict() for customer in paginated_customers.items]
     }), 200
 
 # Get a specific customer

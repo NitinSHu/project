@@ -27,6 +27,7 @@ class Customer(db.Model):
             'id': self.id,
             'first_name': self.first_name,
             'last_name': self.last_name,
+            'full_name': self.get_formatted_name(),
             'email': self.email,
             'phone': self.phone,
             'company': self.company,
@@ -37,6 +38,19 @@ class Customer(db.Model):
             'rating': latest_rating,
             'average_rating': avg_rating
         }
+    
+    def get_formatted_name(self):
+        """Return a properly formatted full name with correct capitalization."""
+        if not self.first_name and not self.last_name:
+            return ""
+        
+        formatted_first = self.first_name.strip().title() if self.first_name else ""
+        formatted_last = self.last_name.strip().title() if self.last_name else ""
+        
+        if formatted_first and formatted_last:
+            return f"{formatted_first} {formatted_last}"
+        else:
+            return formatted_first or formatted_last
     
     def get_average_rating(self):
         if not self.reviews:
