@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Form, Button, Alert, Container, Row, Col, Spinner, InputGroup } from 'react-bootstrap';
 import { getCustomer, createCustomer, updateCustomer } from '../services/customerService';
-import { FaUser, FaEnvelope, FaPhone, FaBuilding, FaTags, FaArrowLeft, FaSave } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaPhone, FaBuilding, FaTags, FaArrowLeft, FaSave, FaStar } from 'react-icons/fa';
+import StarRatings from 'react-star-ratings';
 
 const CustomerForm = () => {
   const { id } = useParams();
@@ -15,7 +16,8 @@ const CustomerForm = () => {
     email: '',
     phone: '',
     company: '',
-    status: 'lead'
+    status: 'lead',
+    rating: 0
   });
   
   const [loading, setLoading] = useState(isEditMode);
@@ -35,7 +37,10 @@ const CustomerForm = () => {
       setError('');
       const response = await getCustomer(id);
       if (response.success) {
-        setFormData(response.data);
+        setFormData({
+          ...response.data,
+          rating: response.data.rating || 0
+        });
       } else {
         setError('Could not load customer data: ' + (response.message || 'Unknown error'));
       }
@@ -52,6 +57,13 @@ const CustomerForm = () => {
     setFormData({
       ...formData,
       [name]: value
+    });
+  };
+  
+  const handleRatingChange = (newRating) => {
+    setFormData({
+      ...formData,
+      rating: newRating
     });
   };
   
@@ -243,6 +255,32 @@ const CustomerForm = () => {
                       <option value="inactive">Inactive</option>
                     </Form.Select>
                   </InputGroup>
+                </Form.Group>
+              </Col>
+            </Row>
+            
+            <Row className="g-3 mb-4">
+              <Col md={12}>
+                <Form.Group>
+                  <Form.Label className="d-flex align-items-center">
+                    <FaStar className="text-warning me-2" />
+                    Customer Rating
+                  </Form.Label>
+                  <div className="mt-2">
+                    <StarRatings
+                      rating={formData.rating}
+                      starRatedColor="#ffc107"
+                      starHoverColor="#ffdd57"
+                      starDimension="30px"
+                      starSpacing="2px"
+                      changeRating={handleRatingChange}
+                      numberOfStars={5}
+                      name="rating"
+                    />
+                    <div className="mt-2 text-muted small">
+                      {formData.rating === 0 ? 'Not rated' : `Rating: ${formData.rating} out of 5`}
+                    </div>
+                  </div>
                 </Form.Group>
               </Col>
             </Row>

@@ -77,4 +77,26 @@ export const createInteraction = async (customerId, interactionData) => {
     console.error(`Error creating interaction for customer ${customerId}:`, error);
     throw error;
   }
+};
+
+// Get customer rating
+export const getCustomerRating = async (customerId) => {
+  try {
+    const response = await axios.get(`${API_URL}/${customerId}/rating`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching rating for customer ${customerId}:`, error);
+    throw error;
+  }
+};
+
+// Update customer rating
+export const updateCustomerRating = async (customerId, ratingData) => {
+  try {
+    const response = await axios.put(`${API_URL}/${customerId}/rating`, ratingData);
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating rating for customer ${customerId}:`, error);
+    throw error;
+  }
 }; 

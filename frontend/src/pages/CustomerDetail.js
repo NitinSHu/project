@@ -16,6 +16,7 @@ import {
   FaVideo,
   FaUser
 } from 'react-icons/fa';
+import CustomerRating from '../components/CustomerRating';
 
 const CustomerDetail = () => {
   const { id } = useParams();
@@ -235,6 +236,9 @@ const CustomerDetail = () => {
               </ListGroup>
             </Card.Body>
           </Card>
+          
+          {/* Add Customer Rating Component */}
+          <CustomerRating customerId={id} />
         </Col>
 
         <Col lg={8}>

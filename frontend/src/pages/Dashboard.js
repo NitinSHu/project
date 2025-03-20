@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Badge, Container, Spinner, Alert, Button } from 'react-bootstrap';
+import { Card, Row, Col, Badge, Container, Spinner, Alert, Button, ListGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { 
@@ -10,8 +10,10 @@ import {
   FaChartLine,
   FaSearch,
   FaPlus,
-  FaArrowRight
+  FaArrowRight,
+  FaStar
 } from 'react-icons/fa';
+import StarRatings from 'react-star-ratings';
 import '../styles/Dashboard.css';
 
 const Dashboard = () => {
@@ -20,7 +22,8 @@ const Dashboard = () => {
     leads: 0,
     prospects: 0,
     activeCustomers: 0,
-    recentInteractions: []
+    recentCustomers: [],
+    topRatedCustomers: []
   });
 
   const [loading, setLoading] = useState(true);
@@ -40,13 +43,26 @@ const Dashboard = () => {
       if (response.data.success) {
         const customers = response.data.data;
         
+        // Add default rating if not present
+        const customersWithRating = customers.map(customer => ({
+          ...customer,
+          rating: customer.rating || 0
+        }));
+        
+        // Get top rated customers (rating > 0, sorted by rating)
+        const topRated = [...customersWithRating]
+          .filter(customer => customer.rating > 0)
+          .sort((a, b) => b.rating - a.rating)
+          .slice(0, 5);
+        
         // Calculate statistics
         const stats = {
           totalCustomers: customers.length,
           leads: customers.filter(c => c.status === 'lead').length,
           prospects: customers.filter(c => c.status === 'prospect').length,
           activeCustomers: customers.filter(c => c.status === 'customer').length,
-          recentCustomers: customers.slice(-5).reverse()
+          recentCustomers: customers.slice(-5).reverse(),
+          topRatedCustomers: topRated
         };
         
         setStats(stats);
@@ -197,35 +213,53 @@ const Dashboard = () => {
         
         <Col lg={4}>
           <Card className="shadow-sm border-0 h-100">
-            <Card.Header className="bg-light py-3">
+            <Card.Header className="bg-light py-3 d-flex justify-content-between align-items-center">
               <h5 className="mb-0 d-flex align-items-center">
-                <FaSearch className="me-2 opacity-75" />
-                Quick Actions
+                <FaStar className="me-2 opacity-75 text-warning" />
+                Top Rated Customers
               </h5>
             </Card.Header>
-            <Card.Body>
-              <div className="d-grid gap-3">
-                <Link 
-                  to="/customers/new" 
-                  className="btn btn-outline-primary d-flex align-items-center justify-content-between"
-                >
-                  <span className="d-flex align-items-center">
-                    <FaPlus className="me-2" /> 
-                    Add New Customer
-                  </span>
-                  <FaArrowRight size={12} />
-                </Link>
-                <Link 
-                  to="/customers" 
-                  className="btn btn-outline-secondary d-flex align-items-center justify-content-between"
-                >
-                  <span className="d-flex align-items-center">
-                    <FaUsers className="me-2" /> 
-                    View All Customers
-                  </span>
-                  <FaArrowRight size={12} />
-                </Link>
-              </div>
+            <Card.Body className="p-0">
+              {stats.topRatedCustomers?.length > 0 ? (
+                <ListGroup variant="flush">
+                  {stats.topRatedCustomers.map((customer) => (
+                    <ListGroup.Item key={customer.id} className="border-bottom py-3">
+                      <Link 
+                        to={`/customers/${customer.id}`}
+                        className="text-decoration-none"
+                      >
+                        <div className="d-flex justify-content-between align-items-center">
+                          <div>
+                            <h6 className="mb-1 text-dark">{customer.first_name} {customer.last_name}</h6>
+                            <small className="text-muted">{customer.company || 'No company'}</small>
+                          </div>
+                          <div className="d-flex align-items-center">
+                            <StarRatings
+                              rating={customer.rating}
+                              starRatedColor="#ffc107"
+                              starDimension="16px"
+                              starSpacing="1px"
+                              numberOfStars={5}
+                              name={`rating-${customer.id}`}
+                            />
+                            <span className="ms-2 fw-bold">
+                              {customer.rating.toFixed(1)}
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              ) : (
+                <div className="text-center py-5">
+                  <div className="mb-3 text-muted">
+                    <FaStar size={30} className="opacity-50" />
+                  </div>
+                  <h6>No rated customers yet</h6>
+                  <p className="text-muted mb-4">Rate your customers to see them here</p>
+                </div>
+              )}
             </Card.Body>
           </Card>
         </Col>
