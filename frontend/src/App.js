@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Container } from 'react-bootstrap';
 import './App.css';
 
 // Auth Provider
@@ -15,6 +16,7 @@ import CustomerForm from './pages/CustomerForm';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import UserManagement from './pages/UserManagement';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -22,7 +24,7 @@ function App() {
       <Router>
         <div className="App">
           <Navbar />
-          <div className="container mt-4">
+          <Container className="py-4">
             <Routes>
               {/* Public routes */}
               <Route path="/login" element={<Login />} />
@@ -32,6 +34,12 @@ function App() {
               <Route path="/" element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <Profile />
                 </ProtectedRoute>
               } />
               
@@ -66,7 +74,7 @@ function App() {
                 </ProtectedRoute>
               } />
             </Routes>
-          </div>
+          </Container>
         </div>
       </Router>
     </AuthProvider>

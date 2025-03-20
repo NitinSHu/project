@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getUsers, deleteUser, updateUser } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
+import { Container, Row, Col, Card, Form, Button, Alert, Table, Badge, Spinner } from 'react-bootstrap';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -84,170 +85,162 @@ const UserManagement = () => {
   };
   
   if (loading && users.length === 0) {
-    return <div className="text-center py-10">Loading users...</div>;
+    return (
+      <Container className="text-center py-5">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading users...</span>
+        </Spinner>
+      </Container>
+    );
   }
   
   return (
-    <div className="container mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold mb-6">User Management</h1>
+    <Container className="py-4">
+      <h1 className="mb-4">User Management</h1>
       
       {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+        <Alert variant="danger" className="mb-4">
           {error}
-        </div>
+        </Alert>
       )}
       
       {isEditing && selectedUser ? (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Edit User</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-gray-700">Username</label>
-                <input
-                  type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-                  required
-                />
-              </div>
+        <Card className="mb-4 shadow-sm">
+          <Card.Body>
+            <h2 className="mb-4">Edit User</h2>
+            <Form onSubmit={handleSubmit}>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Username</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="username"
+                      value={formData.username}
+                      onChange={handleChange}
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+                
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Email</Form.Label>
+                    <Form.Control
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+                
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Role</Form.Label>
+                    <Form.Select
+                      name="role"
+                      value={formData.role}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="customer">Customer</option>
+                      <option value="admin">Admin</option>
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+                
+                <Col md={6}>
+                  <Form.Group className="mb-3 mt-4">
+                    <Form.Check
+                      type="checkbox"
+                      label="Active User"
+                      name="is_active"
+                      checked={formData.is_active}
+                      onChange={handleChange}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
               
-              <div>
-                <label className="block text-gray-700">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-gray-700">Role</label>
-                <select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-                  required
+              <div className="d-flex justify-content-end mt-3">
+                <Button
+                  variant="secondary"
+                  onClick={handleCancel}
+                  className="me-2"
                 >
-                  <option value="customer">Customer</option>
-                  <option value="admin">Admin</option>
-                </select>
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  type="submit"
+                >
+                  Save Changes
+                </Button>
               </div>
-              
-              <div className="flex items-center mt-8">
-                <input
-                  type="checkbox"
-                  name="is_active"
-                  checked={formData.is_active}
-                  onChange={handleChange}
-                  className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
-                />
-                <label className="ml-2 text-gray-700">Active User</label>
-              </div>
-            </div>
-            
-            <div className="flex justify-end mt-6 space-x-3">
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
-              >
-                Save Changes
-              </button>
-            </div>
-          </form>
-        </div>
+            </Form>
+          </Card.Body>
+        </Card>
       ) : (
-        <div className="bg-white rounded-lg shadow-md overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Username
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Role
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
+        <Card className="shadow-sm">
+          <Card.Body>
+            <Table responsive hover>
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id}>
+                    <td>
                       {user.username}
                       {currentUser && currentUser.id === user.id && (
-                        <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
-                          You
-                        </span>
+                        <Badge bg="info" className="ms-2">You</Badge>
                       )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">{user.email}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      user.role === 'admin'
-                        ? 'bg-purple-100 text-purple-800'
-                        : 'bg-green-100 text-green-800'
-                    }`}>
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      user.is_active
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {user.is_active ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button
-                      onClick={() => handleEdit(user)}
-                      className="text-indigo-600 hover:text-indigo-900 mr-3"
-                    >
-                      Edit
-                    </button>
-                    {currentUser && currentUser.id !== user.id && (
-                      <button
-                        onClick={() => handleDelete(user.id)}
-                        className="text-red-600 hover:text-red-900"
+                    </td>
+                    <td>{user.email}</td>
+                    <td>
+                      <Badge bg={user.role === 'admin' ? 'purple' : 'success'}>
+                        {user.role}
+                      </Badge>
+                    </td>
+                    <td>
+                      <Badge bg={user.is_active ? 'success' : 'danger'}>
+                        {user.is_active ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </td>
+                    <td>
+                      <Button
+                        variant="link"
+                        onClick={() => handleEdit(user)}
+                        className="p-0 me-3 text-decoration-none"
                       >
-                        Delete
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                        Edit
+                      </Button>
+                      {currentUser && currentUser.id !== user.id && (
+                        <Button
+                          variant="link"
+                          onClick={() => handleDelete(user.id)}
+                          className="p-0 text-danger text-decoration-none"
+                        >
+                          Delete
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </Card.Body>
+        </Card>
       )}
-    </div>
+    </Container>
   );
 };
 

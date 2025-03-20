@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Spinner, Container } from 'react-bootstrap';
 
 const ProtectedRoute = ({ 
   children, 
@@ -12,7 +13,13 @@ const ProtectedRoute = ({
   
   // If still loading auth state, show loading
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return (
+      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </Container>
+    );
   }
   
   // If not authenticated, redirect to login

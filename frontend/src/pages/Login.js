@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Form, Button, Card, Container, Row, Col, Alert } from 'react-bootstrap';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
@@ -41,64 +42,64 @@ const Login = () => {
   };
   
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="px-8 py-6 mt-4 text-left bg-white shadow-lg rounded-lg w-full max-w-md">
-        <h3 className="text-2xl font-bold text-center mb-6">Login to your Account</h3>
-        
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
-          </div>
-        )}
-        
-        <form onSubmit={handleSubmit}>
-          <div className="mt-4">
-            <div>
-              <label className="block text-gray-700">Username</label>
-              <input
-                type="text"
-                name="username"
-                value={credentials.username}
-                onChange={handleChange}
-                placeholder="Enter your username"
-                className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-                required
-              />
-            </div>
-            
-            <div className="mt-4">
-              <label className="block text-gray-700">Password</label>
-              <input
-                type="password"
-                name="password"
-                value={credentials.password}
-                onChange={handleChange}
-                placeholder="Enter your password"
-                className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-                required
-              />
-            </div>
-            
-            <div className="flex items-center justify-between mt-6">
-              <button
-                type="submit"
-                className="px-6 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 w-full"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Logging in...' : 'Login'}
-              </button>
-            </div>
-            
-            <div className="mt-6 text-center text-gray-500">
-              Don't have an account?{' '}
-              <Link to="/register" className="text-blue-600 hover:underline">
-                Register
-              </Link>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
+    <Container className="mt-5">
+      <Row className="justify-content-center">
+        <Col md={6} lg={5}>
+          <Card className="shadow-sm">
+            <Card.Body className="p-4">
+              <h3 className="text-center mb-4">Login to your Account</h3>
+              
+              {error && (
+                <Alert variant="danger">
+                  {error}
+                </Alert>
+              )}
+              
+              <Form onSubmit={handleSubmit}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Username</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="username"
+                    value={credentials.username}
+                    onChange={handleChange}
+                    placeholder="Enter your username"
+                    required
+                  />
+                </Form.Group>
+                
+                <Form.Group className="mb-4">
+                  <Form.Label>Password</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="password"
+                    value={credentials.password}
+                    onChange={handleChange}
+                    placeholder="Enter your password"
+                    required
+                  />
+                </Form.Group>
+                
+                <div className="d-grid gap-2">
+                  <Button
+                    variant="primary"
+                    type="submit"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Logging in...' : 'Login'}
+                  </Button>
+                </div>
+                
+                <div className="text-center mt-3">
+                  <span className="text-muted">Don't have an account? </span>
+                  <Link to="/register">Register</Link>
+                </div>
+              </Form>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 
