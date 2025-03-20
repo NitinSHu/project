@@ -32,9 +32,12 @@ const CustomerForm = () => {
   const fetchCustomer = async () => {
     try {
       setLoading(true);
+      setError('');
       const response = await getCustomer(id);
       if (response.success) {
         setFormData(response.data);
+      } else {
+        setError('Could not load customer data: ' + (response.message || 'Unknown error'));
       }
     } catch (error) {
       console.error('Error fetching customer:', error);
@@ -112,22 +115,23 @@ const CustomerForm = () => {
       <div className="d-flex align-items-center mb-4">
         <Button 
           variant="light" 
-          className="me-3 rounded-circle p-2" 
+          className="me-3 rounded-circle p-2 shadow-sm border" 
           onClick={() => navigate(isEditMode ? `/customers/${id}` : '/customers')}
+          aria-label="Go back"
         >
           <FaArrowLeft />
         </Button>
         <h2 className="mb-0">{isEditMode ? 'Edit Customer' : 'Add New Customer'}</h2>
       </div>
       
-      <Card className="shadow-sm border-0">
+      <Card className="shadow-sm border-0 mb-5">
         <Card.Body className="p-4">
           {error && <Alert variant="danger">{error}</Alert>}
           
           <Form noValidate validated={validated} onSubmit={handleSubmit}>
-            <Row>
+            <Row className="g-3">
               <Col md={6}>
-                <Form.Group className="mb-4">
+                <Form.Group className="mb-3">
                   <Form.Label>First Name</Form.Label>
                   <InputGroup>
                     <InputGroup.Text><FaUser /></InputGroup.Text>
@@ -147,7 +151,7 @@ const CustomerForm = () => {
               </Col>
               
               <Col md={6}>
-                <Form.Group className="mb-4">
+                <Form.Group className="mb-3">
                   <Form.Label>Last Name</Form.Label>
                   <InputGroup>
                     <InputGroup.Text><FaUser /></InputGroup.Text>
@@ -167,9 +171,9 @@ const CustomerForm = () => {
               </Col>
             </Row>
             
-            <Row>
+            <Row className="g-3">
               <Col md={6}>
-                <Form.Group className="mb-4">
+                <Form.Group className="mb-3">
                   <Form.Label>Email</Form.Label>
                   <InputGroup>
                     <InputGroup.Text><FaEnvelope /></InputGroup.Text>
@@ -189,7 +193,7 @@ const CustomerForm = () => {
               </Col>
               
               <Col md={6}>
-                <Form.Group className="mb-4">
+                <Form.Group className="mb-3">
                   <Form.Label>Phone</Form.Label>
                   <InputGroup>
                     <InputGroup.Text><FaPhone /></InputGroup.Text>
@@ -205,9 +209,9 @@ const CustomerForm = () => {
               </Col>
             </Row>
             
-            <Row>
+            <Row className="g-3">
               <Col md={6}>
-                <Form.Group className="mb-4">
+                <Form.Group className="mb-3">
                   <Form.Label>Company</Form.Label>
                   <InputGroup>
                     <InputGroup.Text><FaBuilding /></InputGroup.Text>
@@ -223,7 +227,7 @@ const CustomerForm = () => {
               </Col>
               
               <Col md={6}>
-                <Form.Group className="mb-4">
+                <Form.Group className="mb-3">
                   <Form.Label>Status</Form.Label>
                   <InputGroup>
                     <InputGroup.Text><FaTags /></InputGroup.Text>
@@ -243,7 +247,7 @@ const CustomerForm = () => {
               </Col>
             </Row>
             
-            <div className="d-flex justify-content-end gap-2 mt-3">
+            <div className="d-flex justify-content-end gap-3 mt-4">
               <Button 
                 variant="outline-secondary" 
                 onClick={() => navigate(isEditMode ? `/customers/${id}` : '/customers')}

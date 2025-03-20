@@ -22,9 +22,9 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="App">
+        <div className="App min-vh-100 d-flex flex-column">
           <Navbar />
-          <Container className="py-4">
+          <Container fluid="lg" className="py-4 px-lg-4 flex-grow-1">
             <Routes>
               {/* Public routes */}
               <Route path="/login" element={<Login />} />

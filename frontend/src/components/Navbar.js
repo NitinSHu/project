@@ -1,6 +1,7 @@
 import React from 'react';
-import { Navbar as BsNavbar, Nav, Container, NavDropdown } from 'react-bootstrap';
+import { Navbar as BsNavbar, Nav, Container, NavDropdown, Button } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { FaUserPlus, FaTachometerAlt, FaUsers, FaUserCog, FaUser, FaSignOutAlt, FaPlus } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
@@ -14,9 +15,18 @@ const Navbar = () => {
   };
 
   return (
-    <BsNavbar bg="dark" variant="dark" expand="lg" className="mb-3">
-      <Container>
-        <BsNavbar.Brand as={Link} to="/">CRM System</BsNavbar.Brand>
+    <BsNavbar bg="dark" variant="dark" expand="lg" className="sticky-top shadow-sm">
+      <Container fluid="lg">
+        <BsNavbar.Brand as={Link} to="/" className="fw-bold">
+          <span className="d-flex align-items-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="me-2">
+              <path d="M20 4H4C2.89543 4 2 4.89543 2 6V18C2 19.1046 2.89543 20 4 20H20C21.1046 20 22 19.1046 22 18V6C22 4.89543 21.1046 4 20 4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 10H22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M8 15H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            CRM System
+          </span>
+        </BsNavbar.Brand>
         <BsNavbar.Toggle aria-controls="basic-navbar-nav" />
         <BsNavbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
@@ -26,15 +36,19 @@ const Navbar = () => {
                   as={Link} 
                   to="/" 
                   active={location.pathname === '/'}
+                  className="d-flex align-items-center gap-1"
                 >
-                  Dashboard
+                  <FaTachometerAlt size={14} />
+                  <span>Dashboard</span>
                 </Nav.Link>
                 <Nav.Link 
                   as={Link} 
                   to="/customers" 
-                  active={location.pathname.startsWith('/customers')}
+                  active={location.pathname.startsWith('/customers') && !location.pathname.startsWith('/customers/new')}
+                  className="d-flex align-items-center gap-1"
                 >
-                  Customers
+                  <FaUsers size={14} />
+                  <span>Customers</span>
                 </Nav.Link>
               </>
             )}
@@ -47,17 +61,45 @@ const Navbar = () => {
                     as={Link} 
                     to="/admin/users"
                     active={location.pathname.startsWith('/admin')}
+                    className="d-flex align-items-center gap-1"
                   >
-                    Manage Users
+                    <FaUserCog size={14} />
+                    <span>Manage Users</span>
                   </Nav.Link>
                 )}
-                <Nav.Link as={Link} to="/customers/new" className="btn btn-primary text-white mx-2">
-                  Add Customer
-                </Nav.Link>
-                <NavDropdown title={user.username || 'Account'} id="user-dropdown" align="end">
-                  <NavDropdown.Item as={Link} to={`/profile`}>My Profile</NavDropdown.Item>
+                <Button 
+                  as={Link} 
+                  to="/customers/new" 
+                  variant="primary" 
+                  size="sm" 
+                  className="d-flex align-items-center gap-1 mx-3"
+                >
+                  <FaPlus />
+                  <span className="d-none d-sm-inline">Add Customer</span>
+                </Button>
+                <NavDropdown 
+                  title={
+                    <span className="d-flex align-items-center gap-1">
+                      <FaUser size={14} />
+                      <span>{user.username || 'Account'}</span>
+                    </span>
+                  } 
+                  id="user-dropdown" 
+                  align="end"
+                >
+                  <NavDropdown.Item as={Link} to={`/profile`}>
+                    <span className="d-flex align-items-center gap-2">
+                      <FaUser size={14} />
+                      <span>My Profile</span>
+                    </span>
+                  </NavDropdown.Item>
                   <NavDropdown.Divider />
-                  <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
+                  <NavDropdown.Item onClick={handleLogout}>
+                    <span className="d-flex align-items-center gap-2 text-danger">
+                      <FaSignOutAlt size={14} />
+                      <span>Logout</span>
+                    </span>
+                  </NavDropdown.Item>
                 </NavDropdown>
               </>
             ) : (
@@ -65,9 +107,10 @@ const Navbar = () => {
                 <Nav.Link as={Link} to="/login" className="mx-2">
                   Login
                 </Nav.Link>
-                <Nav.Link as={Link} to="/register" className="btn btn-outline-light">
-                  Register
-                </Nav.Link>
+                <Button as={Link} to="/register" variant="outline-light" size="sm" className="d-flex align-items-center gap-1">
+                  <FaUserPlus size={14} />
+                  <span>Register</span>
+                </Button>
               </>
             )}
           </Nav>
