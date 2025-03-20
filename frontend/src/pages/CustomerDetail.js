@@ -17,6 +17,7 @@ import {
   FaUser
 } from 'react-icons/fa';
 import CustomerRating from '../components/CustomerRating';
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 
 const CustomerDetail = () => {
   const { id } = useParams();
@@ -31,6 +32,7 @@ const CustomerDetail = () => {
     notes: '',
     date: new Date().toISOString().split('T')[0]
   });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     fetchCustomerData();
@@ -57,17 +59,23 @@ const CustomerDetail = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this customer? This action cannot be undone.')) {
-      try {
-        const response = await deleteCustomer(id);
-        if (response.success) {
-          navigate('/customers');
-        }
-      } catch (error) {
-        console.error('Error deleting customer:', error);
+  const handleDelete = () => {
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const response = await deleteCustomer(id);
+      if (response.success) {
+        navigate('/customers');
+      } else {
         setError('Failed to delete customer');
       }
+    } catch (error) {
+      console.error('Error deleting customer:', error);
+      setError('An error occurred while deleting the customer');
+    } finally {
+      setShowDeleteModal(false);
     }
   };
 
@@ -378,6 +386,14 @@ const CustomerDetail = () => {
           </Modal.Footer>
         </Form>
       </Modal>
+
+      <DeleteConfirmationModal
+        show={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+        title="Delete Customer"
+        message="Are you sure you want to delete this customer? This action cannot be undone."
+      />
     </Container>
   );
 };

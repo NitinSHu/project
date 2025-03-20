@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { FaSearch, FaFilter, FaSort, FaEdit, FaTrash, FaStar, FaEye } from 'react-icons/fa';
 import { getCustomers, deleteCustomer, searchCustomers } from '../services/customerService';
 import StarRatings from 'react-star-ratings';
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 
 const CustomerList = () => {
   const [customers, setCustomers] = useState([]);
@@ -19,6 +20,9 @@ const CustomerList = () => {
   const [perPage, setPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState(null);
 
   useEffect(() => {
     fetchCustomers();
@@ -106,18 +110,23 @@ const CustomerList = () => {
   const handleDelete = async (id, e) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    if (window.confirm('Are you sure you want to delete this customer? This action cannot be undone.')) {
-      try {
-        const response = await deleteCustomer(id);
-        if (response.success) {
-          // Refetch customers to update the list correctly
-          fetchCustomers();
-        }
-      } catch (error) {
-        console.error('Error deleting customer:', error);
-        setError('Failed to delete customer');
+    setCustomerToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const response = await deleteCustomer(customerToDelete);
+      if (response.success) {
+        // Refetch customers to update the list correctly
+        fetchCustomers();
       }
+    } catch (error) {
+      console.error('Error deleting customer:', error);
+      setError('Failed to delete customer');
+    } finally {
+      setShowDeleteModal(false);
+      setCustomerToDelete(null);
     }
   };
 
@@ -254,7 +263,7 @@ const CustomerList = () => {
   }
 
   return (
-    <Container>
+    <Container fluid className="py-3">
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
         <h2 className="mb-3 mb-md-0">Customers</h2>
         <Link to="/customers/new" className="btn btn-primary d-flex align-items-center gap-2">
@@ -435,6 +444,17 @@ const CustomerList = () => {
           {renderPagination()}
         </Card>
       )}
+      
+      <DeleteConfirmationModal
+        show={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setCustomerToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Customer"
+        message="Are you sure you want to delete this customer? This action cannot be undone."
+      />
     </Container>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getUsers, deleteUser, updateUser } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 import { Container, Row, Col, Card, Form, Button, Alert, Table, Badge, Spinner } from 'react-bootstrap';
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -15,6 +16,8 @@ const UserManagement = () => {
     role: '',
     is_active: true
   });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
   
   const { user: currentUser } = useAuth();
   
@@ -73,14 +76,26 @@ const UserManagement = () => {
     }
   };
   
-  const handleDelete = async (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      try {
-        await deleteUser(userId);
-        fetchUsers(); // Refresh user list
-      } catch (err) {
-        setError(err.error || 'Failed to delete user');
+  const handleDelete = (id) => {
+    setUserToDelete(id);
+    setShowDeleteModal(true);
+  };
+  
+  const confirmDelete = async () => {
+    try {
+      const response = await deleteUser(userToDelete);
+      if (response.success) {
+        // Refetch users to update the list
+        fetchUsers();
+      } else {
+        setError('Failed to delete user');
       }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      setError('An error occurred while deleting the user');
+    } finally {
+      setShowDeleteModal(false);
+      setUserToDelete(null);
     }
   };
   
@@ -240,6 +255,17 @@ const UserManagement = () => {
           </Card.Body>
         </Card>
       )}
+      
+      <DeleteConfirmationModal
+        show={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setUserToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete User"
+        message="Are you sure you want to delete this user?"
+      />
     </Container>
   );
 };
