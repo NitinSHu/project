@@ -1,216 +1,237 @@
 import React from 'react';
+import { Container, Row, Col, Card, Button, ListGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import {
-  UserGroupIcon,
-  ChartBarIcon,
-  ChatBubbleBottomCenterTextIcon,
-  ClockIcon,
-  ArrowTrendingUpIcon,
-  PresentationChartLineIcon,
-  ArrowRightIcon
-} from '@heroicons/react/24/outline';
-
-const features = [
-  {
-    name: 'Customer Management',
-    description: 'Efficiently manage and organize your customer database with ease.',
-    icon: UserGroupIcon,
-    color: 'blue',
-    link: '/customers'
-  },
-  {
-    name: 'Lead Tracking',
-    description: 'Track and nurture leads through your sales pipeline.',
-    icon: ChartBarIcon,
-    color: 'yellow',
-    link: '/customers?status=lead'
-  },
-  {
-    name: 'Interaction History',
-    description: 'Keep detailed records of all customer interactions and communications.',
-    icon: ChatBubbleBottomCenterTextIcon,
-    color: 'green',
-    link: '/customers'
-  },
-  {
-    name: 'Real-time Updates',
-    description: 'Stay up-to-date with real-time customer data and analytics.',
-    icon: ClockIcon,
-    color: 'purple',
-    link: '/dashboard'
-  },
-  {
-    name: 'Performance Metrics',
-    description: 'Track key performance indicators and business growth.',
-    icon: ArrowTrendingUpIcon,
-    color: 'pink',
-    link: '/dashboard'
-  },
-  {
-    name: 'Customer Insights',
-    description: 'Gain valuable insights into customer behavior and preferences.',
-    icon: PresentationChartLineIcon,
-    color: 'indigo',
-    link: '/customers'
-  }
-];
-
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-};
-
-const item = {
-  hidden: { y: 20, opacity: 0 },
-  show: { y: 0, opacity: 1 }
-};
+import { 
+  FaUsers, 
+  FaChartLine, 
+  FaMobileAlt, 
+  FaUserTie, 
+  FaDatabase, 
+  FaShieldAlt, 
+  FaRocket,
+  FaRegLightbulb,
+  FaTasks,
+  FaRegHandshake,
+  FaArrowRight
+} from 'react-icons/fa';
 
 const Home = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <Container className="py-3">
       {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 to-white opacity-50"></div>
-        <motion.div 
-          className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="text-center">
-            <motion.h1 
-              className="text-4xl sm:text-5xl font-bold text-gray-900 tracking-tight leading-tight"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              Streamline Your Customer <br className="hidden sm:block" />
-              <span className="text-primary-600">Relationships</span>
-            </motion.h1>
-            <motion.p 
-              className="mt-6 text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              Manage your customer relationships effectively with our powerful and intuitive CRM system.
-            </motion.p>
-            <motion.div 
-              className="mt-8 flex flex-col sm:flex-row justify-center gap-4 sm:gap-6"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-            >
-              <Link 
-                to="/dashboard" 
-                className="btn-primary inline-flex items-center justify-center text-base px-6 py-3 shadow-lg shadow-primary-500/25 hover:shadow-xl hover:shadow-primary-500/30 transition-all duration-300"
+      <Row className="mb-5 align-items-center">
+        <Col lg={6} className="mb-4 mb-lg-0">
+          <div className="pe-lg-4">
+            <h1 className="display-4 fw-bold mb-3">Simplify Customer Management</h1>
+            <p className="lead text-secondary mb-4">
+              An intuitive CRM system designed to help businesses manage customer relationships, 
+              track interactions, and boost sales performance.
+            </p>
+            <div className="d-flex gap-3">
+              <Button 
+                as={Link} 
+                to="/register" 
+                variant="primary" 
+                size="lg" 
+                className="d-flex align-items-center gap-2"
               >
-                View Dashboard
-                <ArrowTrendingUpIcon className="ml-2 h-5 w-5" />
-              </Link>
-              <Link 
-                to="/customers" 
-                className="btn-secondary inline-flex items-center justify-center text-base px-6 py-3 hover:bg-gray-100 transition-all duration-300"
+                Get Started
+                <FaArrowRight size={14} />
+              </Button>
+              <Button 
+                as={Link} 
+                to="/login" 
+                variant="outline-secondary" 
+                size="lg"
               >
-                Manage Customers
-                <UserGroupIcon className="ml-2 h-5 w-5" />
-              </Link>
-            </motion.div>
+                Sign In
+              </Button>
+            </div>
           </div>
-        </motion.div>
-      </div>
-
-      {/* Features Grid */}
-      <motion.div 
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24"
-        variants={container}
-        initial="hidden"
-        animate="show"
-      >
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900">
-            Everything you need to manage your customers
-          </h2>
-          <p className="mt-4 text-lg text-gray-600">
-            Powerful features to help you grow your business
+        </Col>
+        <Col lg={6}>
+          <img 
+            src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80" 
+            alt="CRM Dashboard" 
+            className="img-fluid rounded shadow-lg"
+          />
+        </Col>
+      </Row>
+      
+      {/* Features Section */}
+      <section className="mb-5">
+        <div className="text-center mb-5">
+          <h2 className="fw-bold">Key Features</h2>
+          <p className="text-secondary mx-auto" style={{ maxWidth: '700px' }}>
+            Our CRM provides powerful tools to manage your customer relationships effectively
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <motion.div
-              key={feature.name}
-              variants={item}
-              whileHover={{ scale: 1.02 }}
-              className="relative"
-            >
-              <Link 
-                to={feature.link}
-                className="block h-full"
-              >
-                <div className="relative card h-full group p-6 sm:p-8 bg-white hover:bg-gray-50 transition-all duration-300">
-                  <div className="flex items-start space-x-4">
-                    <div className={`p-3 rounded-xl bg-${feature.color}-100 inline-flex shrink-0`}>
-                      <feature.icon className={`h-6 w-6 text-${feature.color}-600`} />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors duration-300">
-                        {feature.name}
-                      </h3>
-                      <p className="mt-2 text-gray-600">
-                        {feature.description}
-                      </p>
-                      <div className="mt-4 inline-flex items-center text-primary-600 text-sm font-medium">
-                        Learn more
-                        <ArrowRightIcon className="ml-1 h-4 w-4" />
-                      </div>
-                    </div>
-                  </div>
+        
+        <Row className="g-4">
+          <Col md={4}>
+            <Card className="h-100 border-0 shadow-sm">
+              <Card.Body className="p-4">
+                <div className="text-primary mb-3">
+                  <FaUsers size={28} />
                 </div>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Quick Stats */}
-      <motion.div 
-        className="bg-gradient-to-b from-primary-50 to-white py-16 sm:py-24"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900">
-              Why choose our CRM?
-            </h2>
-            <p className="mt-4 text-lg text-gray-600">
-              Designed to help you succeed
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="card bg-white p-8 text-center hover:shadow-lg transition-all duration-300">
-              <div className="text-3xl font-bold text-primary-600 mb-4">Simple</div>
-              <p className="text-gray-600">Intuitive interface that makes customer management effortless</p>
-            </div>
-            <div className="card bg-white p-8 text-center hover:shadow-lg transition-all duration-300">
-              <div className="text-3xl font-bold text-primary-600 mb-4">Fast</div>
-              <p className="text-gray-600">Real-time updates and lightning-quick performance</p>
-            </div>
-            <div className="card bg-white p-8 text-center hover:shadow-lg transition-all duration-300">
-              <div className="text-3xl font-bold text-primary-600 mb-4">Secure</div>
-              <p className="text-gray-600">Enterprise-grade security for your customer data</p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-    </div>
+                <Card.Title>Customer Management</Card.Title>
+                <Card.Text>
+                  Easily store and organize customer information. Track communication 
+                  history and customer status.
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+          
+          <Col md={4}>
+            <Card className="h-100 border-0 shadow-sm">
+              <Card.Body className="p-4">
+                <div className="text-primary mb-3">
+                  <FaRegHandshake size={28} />
+                </div>
+                <Card.Title>Interaction Tracking</Card.Title>
+                <Card.Text>
+                  Log emails, calls, meetings, and notes. Never miss a follow-up with 
+                  comprehensive interaction history.
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+          
+          <Col md={4}>
+            <Card className="h-100 border-0 shadow-sm">
+              <Card.Body className="p-4">
+                <div className="text-primary mb-3">
+                  <FaChartLine size={28} />
+                </div>
+                <Card.Title>Dashboard Analytics</Card.Title>
+                <Card.Text>
+                  Get real-time insights into your sales funnel and customer 
+                  acquisition metrics with visual reports.
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </section>
+      
+      {/* Benefits Section */}
+      <section className="mb-5 py-5 bg-light rounded-3">
+        <Container>
+          <Row className="align-items-center">
+            <Col lg={5} className="mb-4 mb-lg-0">
+              <h2 className="fw-bold mb-4">Why Choose Our CRM?</h2>
+              
+              <ListGroup variant="flush" className="border-0">
+                <ListGroup.Item className="border-0 bg-transparent ps-0 d-flex align-items-center gap-3 mb-3">
+                  <div className="rounded-circle bg-primary bg-opacity-10 p-2">
+                    <FaMobileAlt className="text-primary" />
+                  </div>
+                  <div>
+                    <h5 className="mb-1">Responsive Design</h5>
+                    <p className="mb-0 text-secondary">Access from any device - desktop, tablet, or mobile</p>
+                  </div>
+                </ListGroup.Item>
+                
+                <ListGroup.Item className="border-0 bg-transparent ps-0 d-flex align-items-center gap-3 mb-3">
+                  <div className="rounded-circle bg-primary bg-opacity-10 p-2">
+                    <FaUserTie className="text-primary" />
+                  </div>
+                  <div>
+                    <h5 className="mb-1">User-Friendly Interface</h5>
+                    <p className="mb-0 text-secondary">Intuitive design for ease of use with minimal training</p>
+                  </div>
+                </ListGroup.Item>
+                
+                <ListGroup.Item className="border-0 bg-transparent ps-0 d-flex align-items-center gap-3 mb-3">
+                  <div className="rounded-circle bg-primary bg-opacity-10 p-2">
+                    <FaDatabase className="text-primary" />
+                  </div>
+                  <div>
+                    <h5 className="mb-1">Secure Data Storage</h5>
+                    <p className="mb-0 text-secondary">Your customer data is encrypted and securely stored</p>
+                  </div>
+                </ListGroup.Item>
+                
+                <ListGroup.Item className="border-0 bg-transparent ps-0 d-flex align-items-center gap-3">
+                  <div className="rounded-circle bg-primary bg-opacity-10 p-2">
+                    <FaShieldAlt className="text-primary" />
+                  </div>
+                  <div>
+                    <h5 className="mb-1">Role-Based Access</h5>
+                    <p className="mb-0 text-secondary">Control who can view and modify customer information</p>
+                  </div>
+                </ListGroup.Item>
+              </ListGroup>
+            </Col>
+            
+            <Col lg={7}>
+              <Row className="g-4">
+                <Col sm={6}>
+                  <Card className="border-0 bg-white shadow-sm">
+                    <Card.Body className="p-4 text-center">
+                      <div className="rounded-circle bg-primary bg-opacity-10 p-3 mx-auto mb-3" style={{ width: 'fit-content' }}>
+                        <FaRegLightbulb className="text-primary" size={24} />
+                      </div>
+                      <h4 className="mb-2">Increase Sales</h4>
+                      <p className="text-secondary mb-0">
+                        Better customer insights lead to more effective sales strategies.
+                      </p>
+                    </Card.Body>
+                  </Card>
+                </Col>
+                
+                <Col sm={6}>
+                  <Card className="border-0 bg-white shadow-sm">
+                    <Card.Body className="p-4 text-center">
+                      <div className="rounded-circle bg-primary bg-opacity-10 p-3 mx-auto mb-3" style={{ width: 'fit-content' }}>
+                        <FaTasks className="text-primary" size={24} />
+                      </div>
+                      <h4 className="mb-2">Save Time</h4>
+                      <p className="text-secondary mb-0">
+                        Streamline workflows and reduce time spent on administrative tasks.
+                      </p>
+                    </Card.Body>
+                  </Card>
+                </Col>
+                
+                <Col sm={12}>
+                  <Card className="border-0 bg-white shadow-sm">
+                    <Card.Body className="p-4 text-center">
+                      <div className="rounded-circle bg-primary bg-opacity-10 p-3 mx-auto mb-3" style={{ width: 'fit-content' }}>
+                        <FaRocket className="text-primary" size={24} />
+                      </div>
+                      <h4 className="mb-2">Grow Your Business</h4>
+                      <p className="text-secondary mb-0">
+                        Better customer relationships lead to increased loyalty and business growth.
+                      </p>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+        </Container>
+      </section>
+      
+      {/* Call to Action */}
+      <section className="text-center py-5">
+        <h2 className="display-6 fw-bold mb-4">Ready to Streamline Your Customer Management?</h2>
+        <p className="lead text-secondary mb-5 mx-auto" style={{ maxWidth: '700px' }}>
+          Join thousands of businesses that trust our CRM to manage their customer relationships effectively.
+        </p>
+        <Button 
+          as={Link} 
+          to="/register" 
+          variant="primary" 
+          size="lg" 
+          className="px-5 py-3 d-inline-flex align-items-center gap-2"
+        >
+          Get Started Now
+          <FaArrowRight />
+        </Button>
+      </section>
+    </Container>
   );
 };
 

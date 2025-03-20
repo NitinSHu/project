@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navbar as BsNavbar, Nav, Container, NavDropdown, Button } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaUserPlus, FaTachometerAlt, FaUsers, FaUserCog, FaUser, FaSignOutAlt, FaPlus } from 'react-icons/fa';
+import { FaUserPlus, FaTachometerAlt, FaUsers, FaUserCog, FaUser, FaSignOutAlt, FaPlus, FaHome } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
@@ -30,12 +30,22 @@ const Navbar = () => {
         <BsNavbar.Toggle aria-controls="basic-navbar-nav" />
         <BsNavbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
+            <Nav.Link 
+              as={Link} 
+              to="/" 
+              active={location.pathname === '/'}
+              className="d-flex align-items-center gap-1"
+            >
+              <FaHome size={14} />
+              <span>Home</span>
+            </Nav.Link>
+            
             {user && (
               <>
                 <Nav.Link 
                   as={Link} 
-                  to="/" 
-                  active={location.pathname === '/'}
+                  to="/dashboard" 
+                  active={location.pathname === '/dashboard'}
                   className="d-flex align-items-center gap-1"
                 >
                   <FaTachometerAlt size={14} />

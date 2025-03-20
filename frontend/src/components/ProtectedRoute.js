@@ -29,7 +29,7 @@ const ProtectedRoute = ({
 
   // If admin access required but user is not admin, redirect to dashboard
   if (requireAdmin && !isAdmin()) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   // Render the protected component
