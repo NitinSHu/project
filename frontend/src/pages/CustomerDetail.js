@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Card, Row, Col, Button, ListGroup, Form, Modal, Container, Badge, Spinner, Alert, InputGroup } from 'react-bootstrap';
 import { getCustomer, getCustomerInteractions, createInteraction, deleteCustomer } from '../services/customerService';
+import { toast } from 'react-toastify';
 import { 
   FaEdit, 
   FaTrash, 
@@ -33,6 +34,8 @@ const CustomerDetail = () => {
     date: new Date().toISOString().split('T')[0]
   });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
 
   useEffect(() => {
     fetchCustomerData();
@@ -65,17 +68,22 @@ const CustomerDetail = () => {
 
   const confirmDelete = async () => {
     try {
+      setIsDeleting(true);
+      setDeleteError(null);
       const response = await deleteCustomer(id);
+      
       if (response.success) {
+        toast.success('Customer deleted successfully');
+        setShowDeleteModal(false);
         navigate('/customers');
       } else {
-        setError('Failed to delete customer');
+        setDeleteError('Failed to delete customer. Please try again.');
       }
     } catch (error) {
       console.error('Error deleting customer:', error);
-      setError('An error occurred while deleting the customer');
+      setDeleteError('An error occurred while deleting the customer. Please try again.');
     } finally {
-      setShowDeleteModal(false);
+      setIsDeleting(false);
     }
   };
 
@@ -84,6 +92,7 @@ const CustomerDetail = () => {
     try {
       const response = await createInteraction(id, newInteraction);
       if (response.success) {
+        toast.success('Interaction added successfully');
         setInteractions([...interactions, response.data]);
         setShowInteractionModal(false);
         setNewInteraction({
@@ -91,10 +100,12 @@ const CustomerDetail = () => {
           notes: '',
           date: new Date().toISOString().split('T')[0]
         });
+      } else {
+        toast.error('Failed to add interaction');
       }
     } catch (error) {
       console.error('Error creating interaction:', error);
-      setError('Failed to add interaction');
+      toast.error('Failed to add interaction. Please try again.');
     }
   };
 
@@ -389,10 +400,15 @@ const CustomerDetail = () => {
 
       <DeleteConfirmationModal
         show={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeleteError(null);
+        }}
         onConfirm={confirmDelete}
         title="Delete Customer"
         message="Are you sure you want to delete this customer? This action cannot be undone."
+        isLoading={isDeleting}
+        error={deleteError}
       />
     </Container>
   );

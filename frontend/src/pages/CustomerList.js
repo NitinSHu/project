@@ -5,6 +5,8 @@ import { FaSearch, FaFilter, FaSort, FaEdit, FaTrash, FaStar, FaEye } from 'reac
 import { getCustomers, deleteCustomer, searchCustomers } from '../services/customerService';
 import StarRatings from 'react-star-ratings';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
+import { toast } from 'react-toastify';
+import { useDebounce } from '../hooks/useDebounce';
 
 const CustomerList = () => {
   const [customers, setCustomers] = useState([]);
@@ -23,10 +25,17 @@ const CustomerList = () => {
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   useEffect(() => {
-    fetchCustomers();
-  }, [page, perPage, sortField, sortDirection, statusFilter]);
+    if (debouncedSearchTerm.trim()) {
+      performSearch();
+    } else {
+      fetchCustomers();
+    }
+  }, [debouncedSearchTerm, page, perPage, sortField, sortDirection, statusFilter]);
 
   const fetchCustomers = async () => {
     try {
@@ -116,17 +125,22 @@ const CustomerList = () => {
 
   const confirmDelete = async () => {
     try {
+      setIsDeleting(true);
+      setDeleteError(null);
       const response = await deleteCustomer(customerToDelete);
+      
       if (response.success) {
+        toast.success('Customer deleted successfully');
         // Refetch customers to update the list correctly
         fetchCustomers();
+      } else {
+        setDeleteError('Failed to delete customer. Please try again.');
       }
     } catch (error) {
       console.error('Error deleting customer:', error);
-      setError('Failed to delete customer');
+      setDeleteError('An error occurred while deleting the customer. Please try again.');
     } finally {
-      setShowDeleteModal(false);
-      setCustomerToDelete(null);
+      setIsDeleting(false);
     }
   };
 
@@ -450,10 +464,13 @@ const CustomerList = () => {
         onClose={() => {
           setShowDeleteModal(false);
           setCustomerToDelete(null);
+          setDeleteError(null);
         }}
         onConfirm={confirmDelete}
         title="Delete Customer"
         message="Are you sure you want to delete this customer? This action cannot be undone."
+        isLoading={isDeleting}
+        error={deleteError}
       />
     </Container>
   );
